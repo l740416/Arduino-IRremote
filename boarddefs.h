@@ -532,32 +532,31 @@
 // defines for timer_tiny0 (8 bits)
 #elif defined(IR_USE_TIMER_TINY0)
 #define TIMER_RESET
-#define TIMER_ENABLE_PWM     (TCCR0A |= _BV(COM0B1))
-#define TIMER_DISABLE_PWM    (TCCR0A &= ~(_BV(COM0B1)))
-#define TIMER_ENABLE_INTR    (TIMSK |= _BV(OCIE0A))
-#define TIMER_DISABLE_INTR   (TIMSK &= ~(_BV(OCIE0A)))
-#define TIMER_INTR_NAME      TIMER0_COMPA_vect
+#define TIMER_ENABLE_PWM     (TCCR1 |= _BV(COM1A1))
+#define TIMER_DISABLE_PWM    (TCCR1 &= ~(_BV(COM1A1)))
+#define TIMER_ENABLE_INTR    (TIMSK |= _BV(OCIE1B))
+#define TIMER_DISABLE_INTR   (TIMSK &= ~(_BV(OCIE1B)))
+#define TIMER_INTR_NAME      TIMER1_COMPB_vect
 #define TIMER_CONFIG_KHZ(val) ({ \
-  const uint8_t pwmval = SYSCLOCK / 2000 / (val); \
-  TCCR0A = _BV(WGM00); \
-  TCCR0B = _BV(WGM02) | _BV(CS00); \
-  OCR0A = pwmval; \
-  OCR0B = pwmval / 3; \
+  const uint8_t pwmval = SYSCLOCK / (val) / 1000; \
+  TCCR1 = _BV(PWM1A) | _BV(CS10); \
+  OCR1C = pwmval; \
+  OCR1A = OCR1C / 3; \
 })
 #define TIMER_COUNT_TOP      (SYSCLOCK * USECPERTICK / 1000000)
 #if (TIMER_COUNT_TOP < 256)
 #define TIMER_CONFIG_NORMAL() ({ \
-  TCCR0A = _BV(WGM01); \
-  TCCR0B = _BV(CS00); \
-  OCR0A = TIMER_COUNT_TOP; \
-  TCNT0 = 0; \
+  TCCR1 = _BV(CTC1) | _BV(CS10); \
+  OCR1B = TIMER_COUNT_TOP; \
+  OCR1C = TIMER_COUNT_TOP; \
+  TCNT1 = 0; \
 })
 #else
 #define TIMER_CONFIG_NORMAL() ({ \
-  TCCR0A = _BV(WGM01); \
-  TCCR0B = _BV(CS01); \
-  OCR0A = TIMER_COUNT_TOP / 8; \
-  TCNT0 = 0; \
+  TCCR1 = _BV(CTC1) | _BV(CS11) | _BV(CS10); \
+  OCR1B = TIMER_COUNT_TOP / 4; \
+  OCR1C = TIMER_COUNT_TOP / 4; \
+  TCNT1 = 0; \
 })
 #endif
 
