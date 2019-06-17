@@ -138,11 +138,15 @@
 
 // ATtiny84
 #elif defined(__AVR_ATtiny84__)
-	#define IR_USE_TIMER1     // tx = pin 6
+	#define IR_USE_TIMER1_TINY   // tx = pin 6
 
 //ATtiny85
 #elif defined(__AVR_ATtiny85__)
-	#define IR_USE_TIMER_TINY0   // tx = pin 1
+	#define IR_USE_TIMER1_TINY   // tx = pin 1
+
+//ATtiny1634
+#elif defined(__AVR_ATtiny1634__)
+	#define IR_USE_TIMER1_TINY1634   // tx = pin 1
 
 #elif defined(ESP32)
 	#define IR_TIMER_USE_ESP32
@@ -529,8 +533,40 @@
 })
 #define TIMER_PWM_PIN        16
 
-// defines for timer_tiny0 (8 bits)
-#elif defined(IR_USE_TIMER_TINY0)
+// defines for timer1_tiny1634 (16 bits)
+#elif defined(IR_USE_TIMER1_TINY1634)
+#define TIMER_RESET
+#define TIMER_ENABLE_PWM     (TCCR1A |= _BV(COM1A1))
+#define TIMER_DISABLE_PWM    (TCCR1A &= ~(_BV(COM1A1)))
+#define TIMER_ENABLE_INTR    (TIMSK  |= _BV(OCIE1B))
+#define TIMER_DISABLE_INTR   (TIMSK  &= ~(_BV(OCIE1B)))
+#define TIMER_INTR_NAME      TIMER1_COMPB_vect
+// Fast PWM, TOP = ICR1, compare OCR1A
+#define TIMER_CONFIG_KHZ(val) ({ \
+  const uint16_t pwmval    = SYSCLOCK / (val) / 1000; \
+  const uint16_t highwidth = pwmval / 3; \
+  TCCR1A = _BV(WGM11); \
+  TCCR1B = _BV(WGM13) | _BV(WGM12) | _BV(CS10); \
+  ICR1H  = pwmval >> 8;      \
+  ICR1L  = pwmval & 0xFF;    \
+  OCR1AH = highwidth >> 8;   \
+  OCR1AL = highwidth & 0xFF; \
+})
+#define TIMER_COUNT_TOP      (SYSCLOCK * USECPERTICK / 1000000)
+// CTC, TOP = ICR1
+#define TIMER_CONFIG_NORMAL() ({ \
+  TCCR1A = 0; \
+  TCCR1B = _BV(WGM13) | _BV(WGM12) | _BV(CS10); \
+  ICR1H  = TIMER_COUNT_TOP >> 8;   \
+  ICR1L  = TIMER_COUNT_TOP & 0xFF; \
+  OCR1BH = TIMER_COUNT_TOP >> 8;   \
+  OCR1BL = TIMER_COUNT_TOP & 0xFF; \
+  TCNT1H = 0; \
+  TCNT1L = 0; \
+})
+#define TIMER_PWM_PIN        PIN_B3  /* PB3, ATtiny1634 */
+
+#elif defined(IR_USE_TIMER1_TINY)
 #define TIMER_RESET
 #define TIMER_ENABLE_PWM     (TCCR1 |= _BV(COM1A1))
 #define TIMER_DISABLE_PWM    (TCCR1 &= ~(_BV(COM1A1)))
@@ -558,9 +594,8 @@
   OCR1C = TIMER_COUNT_TOP / 4; \
   TCNT1 = 0; \
 })
-#endif
-
 #define TIMER_PWM_PIN        1  /* ATtiny85 */
+#endif
 
 //---------------------------------------------------------
 // ESP32 (ESP8266 should likely be added here too)

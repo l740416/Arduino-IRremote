@@ -30,7 +30,7 @@ Whether you use the Adafruit Neopixel lib, or FastLED, interrupts get disabled o
 - ATmega8, 48, 88, 168, 328
 - ATmega8535, 16, 32, 164, 324, 644, 1284,
 - ATmega64, 128
-- ATtiny 84 / 85
+- ATtiny 84 / 85 / 1634
 - ESP32 (receive only)
 - ESP8266 is supported in a fork based on an old codebase that isn't as recent, but it works reasonably well given that perfectly timed sub millisecond interrupts are different on that chip. See https://github.com/markszabo/IRremoteESP8266
 - Sparkfun Pro Micro
@@ -42,7 +42,8 @@ We are open to suggestions for adding support to new boards, however we highly r
 | Board/CPU                                                                | Send Pin            | Timers            |
 |--------------------------------------------------------------------------|---------------------|-------------------|
 | [ATtiny84](https://github.com/SpenceKonde/ATTinyCore)                    | **6**               | **1**             |
-| [ATtiny85](https://github.com/SpenceKonde/ATTinyCore)                    | **1**               | **TINY0**         |
+| [ATtiny85](https://github.com/SpenceKonde/ATTinyCore)                    | **PB1**             | **TINY1**         |
+| [ATtiny1634](https://github.com/SpenceKonde/ATTinyCore)                  | **PB2**             | **TINY1**         |
 | [ATmega8](https://github.com/MCUdude/MiniCore)                           | **9**               | **1**             |
 | Atmega32u4                                                               | 5, 9, **13**        | 1, 3, **4**       |
 | [ATmega48, ATmega88, ATmega168, ATmega328](https://github.com/MCUdude/MiniCore) | **3**, 9     | 1, **2**          |
